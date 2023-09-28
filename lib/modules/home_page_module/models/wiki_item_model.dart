@@ -1,28 +1,39 @@
+import 'package:hive/hive.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 part 'wiki_item_model.g.dart';
 
-//TODO: might create another class which is
-List<WikiItemModel> getListFromJson(Map<String, dynamic> resp) {
-  List<WikiItemModel> wikiItemList = [];
-  resp['query']?['pages'].forEach((element) {
-    wikiItemList.add(WikiItemModel.fromJson(element));
-  });
-  return wikiItemList;
+@HiveType(typeId: 0)
+@JsonSerializable(explicitToJson: true)
+class ListOfWikiItemModel extends HiveObject {
+  @HiveField(0)
+  @JsonKey(name: 'pages')
+  List<WikiItemModel> wikiItemList;
+
+  ListOfWikiItemModel(this.wikiItemList);
+
+  factory ListOfWikiItemModel.fromJson(Map<String, dynamic> json) => _$ListOfWikiItemModelFromJson(json);
+
+  Map<String, dynamic> toJson() => _$ListOfWikiItemModelToJson(this);
 }
 
-@JsonSerializable()
-class WikiItemModel {
-  const WikiItemModel({
+@HiveType(typeId: 1)
+@JsonSerializable(explicitToJson: true)
+@JsonSerializable(explicitToJson: true)
+class WikiItemModel extends HiveObject {
+  WikiItemModel({
     required this.pageid,
     this.title,
     this.thumbnail,
     this.description,
   });
-
+  @HiveField(0)
   final int pageid;
+  @HiveField(1)
   final String? title;
+  @HiveField(2)
   final Thumbnail? thumbnail;
+  @HiveField(3)
   final String? description;
 
   factory WikiItemModel.fromJson(Map<String, dynamic> json) => _$WikiItemModelFromJson(json);
@@ -30,8 +41,11 @@ class WikiItemModel {
   Map<String, dynamic> toJson() => _$WikiItemModelToJson(this);
 }
 
+@HiveType(typeId: 2)
+@JsonSerializable(explicitToJson: true)
 @JsonSerializable()
-class Thumbnail {
+class Thumbnail extends HiveObject {
+  @HiveField(0)
   String? source;
 
   Thumbnail(this.source);

@@ -1,7 +1,7 @@
 import 'package:either_dart/either.dart';
 import 'package:wiki_app/modules/wiki_description_module/models/wiki_description_model.dart';
-import 'package:wiki_app/services/api_service.dart';
-import 'package:wiki_app/services/custom_error.dart';
+import 'package:wiki_app/services/api_service/api_service.dart';
+import 'package:wiki_app/services/error_service/custom_error.dart';
 import 'package:wiki_app/utils/constants.dart';
 
 class WikiDescriptionRepo {

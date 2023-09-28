@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:hive/hive.dart';
 import 'package:wiki_app/modules/home_page_module/home_page.dart';
 import 'package:wiki_app/route/app_router.dart';
+import 'package:wiki_app/services/hive_service/hive_service.dart';
+import 'package:wiki_app/services/hive_service/hive_utils.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  HiveService.instance.init(HiveUtils.wikiSearchBox);
   runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
@@ -18,7 +22,6 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
       ),
       routerConfig: route,
-      // home: const HomePage(),
     );
   }
 }

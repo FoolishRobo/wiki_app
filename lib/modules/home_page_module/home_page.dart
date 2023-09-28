@@ -1,8 +1,10 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wiki_app/common/debouncer.dart';
 import 'package:wiki_app/modules/home_page_module/bloc/home_page_bloc.dart';
+import 'package:wiki_app/utils/extensions.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -15,28 +17,33 @@ class _HomePageState extends State<HomePage> {
   late final ScrollController _scrollController;
   late final TextEditingController _textEditingController;
   // ignore: prefer_typing_uninitialized_variables
-  late final Debouncer _debouncer;
-  late int offset;
+  late final Debouncer _textFieldDebouncer;
+  late final Debouncer _paginationApiCallDebouncer;
 
   @override
   void initState() {
     super.initState();
-    offset = 0;
-    _debouncer = Debouncer(delay: const Duration(milliseconds: 500));
+    _textFieldDebouncer = Debouncer(delay: const Duration(milliseconds: 500));
+    _paginationApiCallDebouncer = Debouncer(delay: const Duration(milliseconds: 500));
     _textEditingController = TextEditingController();
     _scrollController = ScrollController();
   }
 
   @override
   void dispose() {
-    _debouncer.dispose();
+    _textFieldDebouncer.dispose();
+    _paginationApiCallDebouncer.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<HomePageBloc>(
-      create: (_) => HomePageBloc(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<HomePageBloc>(
+          create: (_) => HomePageBloc(),
+        ),
+      ],
       child: Scaffold(
         body: SafeArea(
           child: Padding(
@@ -45,13 +52,9 @@ class _HomePageState extends State<HomePage> {
             ),
             child: Column(
               children: [
-                SizedBox(
-                  height: 20,
-                ),
+                20.h,
                 getTextField(),
-                SizedBox(
-                  height: 20,
-                ),
+                20.h,
                 getBodyView(),
               ],
             ),
@@ -66,8 +69,8 @@ class _HomePageState extends State<HomePage> {
       return TextField(
         controller: _textEditingController,
         onChanged: (value) {
-          _debouncer.run(() {
-            context.read<HomePageBloc>().add(SearchHomePageDataEvent(query: value, offset: offset));
+          _textFieldDebouncer.run(() {
+            context.read<HomePageBloc>().add(SearchHomePageDataEvent(query: value));
           });
         },
         decoration: InputDecoration(
@@ -94,50 +97,42 @@ class _HomePageState extends State<HomePage> {
             child: CircularProgressIndicator(),
           );
         } else if (state is LoadedHomePageState) {
-          return getListView(state, false, () {
-            context.read<HomePageBloc>().add(SearchHomePageDataEvent(query: _textEditingController.text, offset: offset));
-          });
+          return getListView(state, false, context);
         } else if (state is LoadingPaginatedHomePageState) {
-          return getListView(state, true, () {
-            context.read<HomePageBloc>().add(SearchHomePageDataEvent(query: _textEditingController.text, offset: offset));
-          });
+          return getListView(state, true, context);
         }
         return Container();
       },
     );
   }
 
-  Widget getListView(state, bool isLoadingPaginatedView, Function search) {
+  Widget getListView(state, bool isLoadingPaginatedView, BuildContext context) {
     return Expanded(
       child: ListView.builder(
         controller: _scrollController
-          ..addListener(() {
-            if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
-              offset += 10;
-              search();
-            }
-          }),
+          // paginated api call, added inside debouncer to reject multiple scroll triggers
+          ..addListener(() => _paginationApiCallDebouncer.run(() {
+                if (_scrollController.position.pixels == _scrollController.position.maxScrollExtent) {
+                  context.read<HomePageBloc>().add(SearchHomePageDataEvent(query: _textEditingController.text));
+                }
+              })),
         shrinkWrap: true,
         itemCount: state.pages.length,
         itemBuilder: (context, index) {
           return Column(
             children: [
               ListTile(
-                leading: Image.network(
-                  state.pages[index].thumbnail?.source ?? '',
-                  errorBuilder: (context, error, stackTrace) {
-                    return const SizedBox(width: 60, child: Center(child: Icon(Icons.error)));
-                  },
+                leading: CachedNetworkImage(
+                  imageUrl: state.pages[index].thumbnail?.source ?? '',
+                  errorWidget: (context, url, error) => const SizedBox(width: 60, child: Center(child: Icon(Icons.error))),
                   width: 60,
                   fit: BoxFit.cover,
                 ),
                 title: Text(state.pages[index].title ?? ''),
                 subtitle: Text(state.pages[index].description ?? ''),
                 onTap: () {
-                  print(state.pages[index].title.toString());
                   context.go(context
                       .namedLocation('wiki_desc', pathParameters: {'id': state.pages[index].pageid.toString(), 'title': state.pages[index].title.toString()}));
-                  // context.read<HomePageBloc>().add(SelectHomePageDataEvent(selectedItem: state.pages[index].pageid.toString()));
                 },
               ),
               if (isLoadingPaginatedView && index == state.pages.length - 1)

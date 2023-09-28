@@ -1,7 +1,7 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 import 'package:either_dart/either.dart';
-import 'package:wiki_app/services/custom_error.dart';
+import 'package:wiki_app/services/error_service/custom_error.dart';
 
 class ApiService {
   final String baseUrl;
