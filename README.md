@@ -1,16 +1,28 @@
-# wiki_app
+# Wiki App
 
-A new Flutter project.
+## Overview
+
+Wiki App is a mobile application developed using Flutter, a UI toolkit that enables the creation of natively compiled applications for mobile, web, and desktop from a single codebase.
+
+## Flutter Version
+
+- Flutter: 3.13.5
+- Channel: stable
+- Dart Version: 3.1.2
+- DevTools Version: 2.25.0
+
+## Features
+
+- Utilizes the Wikipedia API to retrieve and display search results.
+- Parses JSON from the API response.
+- Each list item in the search results includes an image and relevant data.
+- Clicking a list item launches the respective Wikipedia page.
+- Implements caching for improved offline experience.
+- Uses proper state management solutions.
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+1. **Clone the Repository:**
 
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+   ```bash
+   git clone https://github.com/FoolishRobo/wiki_app.git
