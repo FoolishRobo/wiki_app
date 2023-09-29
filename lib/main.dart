@@ -1,6 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:hive/hive.dart';
-import 'package:wiki_app/modules/home_page_module/home_page.dart';
 import 'package:wiki_app/route/app_router.dart';
 import 'package:wiki_app/services/hive_service/hive_service.dart';
 import 'package:wiki_app/services/hive_service/hive_utils.dart';

@@ -68,6 +68,7 @@ class _HomePageState extends State<HomePage> {
         controller: _textEditingController,
         onChanged: (value) {
           _textFieldDebouncer.run(() {
+            context.read<HomePageBloc>().offset = 0;
             context.read<HomePageBloc>().add(SearchHomePageDataEvent(query: value));
           });
         },

@@ -39,7 +39,7 @@ class HomePageRepo {
     } else {
       /// TODO: We can create a Cache Service class which can handle retrieving cached data
       /// if data is cached in hive, return the cached data
-      if (await HiveService.instance.isDataCached(HiveUtils.wikiSearchBox, query)) {
+      if (HiveService.instance.isDataCached(HiveUtils.wikiSearchBox, query)) {
         //in offline mode, hive will return all the paginated page's data at once.
         if (offset > 0) {
           return Right(ListOfWikiItemModel([]));
