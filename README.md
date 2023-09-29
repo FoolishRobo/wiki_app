@@ -2,7 +2,7 @@
 
 ## Overview
 
-Wiki App is a mobile application developed using Flutter, a UI toolkit that enables the creation of natively compiled applications for mobile, web, and desktop from a single codebase.
+Wiki App is a mobile application developed using Flutter.
 
 ## Flutter Version
 
