@@ -6,13 +6,10 @@ import 'package:wiki_app/services/hive_service/hive_utils.dart';
 class HiveService {
   late Box box;
 
-  // Private constructor
   HiveService._();
 
-  // Singleton instance
   static final HiveService _instance = HiveService._();
 
-  // Getter to access the instance
   static HiveService get instance => _instance;
 
   init(String boxName) async {
@@ -27,8 +24,8 @@ class HiveService {
     return box;
   }
 
-  saveData(String boxName, String key, dynamic data, {bool isPaginatedApi = false}) async {
-    if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
+  saveData(String boxName, String key, dynamic data, {bool isPaginatedApi = false}) {
+    // if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
     //if it is a paginated api, then we will not clear the previous data
     if (!isPaginatedApi) {
       box.delete(key.toLowerCase());
@@ -36,14 +33,19 @@ class HiveService {
     box.put(key.toLowerCase(), data);
   }
 
-  Future<dynamic> getData(String boxName, String key) async {
-    if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
+  dynamic getData(String boxName, String key) {
+    // if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
     return box.get(key.toLowerCase());
   }
 
-  Future<bool> isDataCached(String boxName, String key) async {
-    if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
+  bool isDataCached(String boxName, String key) {
+    // if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
     return box.keys.contains(key.toLowerCase());
+  }
+
+  deleteData(String boxName, String key) async {
+    // if (!Hive.isBoxOpen(boxName)) await openBox(boxName);
+    box.delete(key.toLowerCase());
   }
 
   deleteBox(String boxName) {

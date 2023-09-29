@@ -1,19 +1,15 @@
+import 'package:wiki_app/modules/wiki_description_module/bloc/wiki_description_event.dart';
 import 'package:wiki_app/modules/wiki_description_module/models/wiki_description_model.dart';
 
-class WikiDescriptionState {}
-
-class InitialWikiDescriptionState extends WikiDescriptionState {}
-
-class LoadingWikiDescriptionState extends WikiDescriptionState {}
-
-class LoadedWikiDescriptionState extends WikiDescriptionState {
-  final WikiDescriptionModel wikiDescriptionModel;
-
-  LoadedWikiDescriptionState({required this.wikiDescriptionModel});
+class WikiDescriptionState {
+  List<String> isBookmarkAddedEvent = [];
+  WikiDescriptionState(this.isBookmarkAddedEvent);
 }
 
-class ErrorWikiDescriptionState extends WikiDescriptionState {
-  final String message;
+class BookMarkAddedState extends WikiDescriptionState {
+  BookMarkAddedState(super.isBookmarkAddedEvent);
+}
 
-  ErrorWikiDescriptionState({required this.message});
+class BookMarkRemovedState extends WikiDescriptionState {
+  BookMarkRemovedState(super.isBookmarkAddedEvent);
 }

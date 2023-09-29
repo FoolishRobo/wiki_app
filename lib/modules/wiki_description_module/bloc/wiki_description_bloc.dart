@@ -5,19 +5,25 @@ import 'package:wiki_app/modules/wiki_description_module/models/wiki_description
 import 'package:wiki_app/repo/wiki_description_repo/wiki_description_repo.dart';
 
 class WikiDescriptionBloc extends Bloc<WikiDescriptionEvent, WikiDescriptionState> {
-  WikiDescriptionBloc() : super(InitialWikiDescriptionState()) {
-    on<FetchWikiDescriptionEvent>((event, emit) async {
-      emit(LoadingWikiDescriptionState());
-      try {
-        var resp = await WikiDescriptionRepo().getWikiDescription(event.wikiId);
-        resp.fold((left) {
-          emit(ErrorWikiDescriptionState(message: left.message));
-        }, (right) {
-          emit(LoadedWikiDescriptionState(wikiDescriptionModel: right));
-        });
-      } catch (e) {
-        emit(ErrorWikiDescriptionState(message: e.toString()));
-      }
+  List<String> bookmakrs = [];
+  WikiDescriptionBloc() : super(BookMarkRemovedState([])) {
+    on<AddToBookmarkEvent>((event, emit) async {
+      WikiDescriptionRepo().addBookMark(event.wikiId);
+      emit(BookMarkAddedState(bookmakrs));
     });
+    on<RemoveFromBookmarkEvent>((event, emit) async {
+      await WikiDescriptionRepo().removeBookMark(event.wikiId);
+      WikiDescriptionRepo().isBookMarkAdded(event.wikiId);
+      emit(BookMarkRemovedState(bookmakrs));
+    });
+    on<GetAllBookmarksEvent>((event, emit) async {
+      bookmakrs = WikiDescriptionRepo().getAllBookMark();
+      emit(BookMarkRemovedState(bookmakrs));
+    });
+  }
+
+  bool isBookmarked(String wikiId) {
+    bookmakrs = WikiDescriptionRepo().getAllBookMark();
+    return bookmakrs.contains(wikiId);
   }
 }

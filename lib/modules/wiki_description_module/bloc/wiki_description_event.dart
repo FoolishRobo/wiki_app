@@ -1,6 +1,13 @@
 class WikiDescriptionEvent {}
 
-class FetchWikiDescriptionEvent extends WikiDescriptionEvent {
+class GetAllBookmarksEvent extends WikiDescriptionEvent {}
+
+class AddToBookmarkEvent extends WikiDescriptionEvent {
   final String wikiId;
-  FetchWikiDescriptionEvent(this.wikiId);
+  AddToBookmarkEvent(this.wikiId);
+}
+
+class RemoveFromBookmarkEvent extends WikiDescriptionEvent {
+  final String wikiId;
+  RemoveFromBookmarkEvent(this.wikiId);
 }

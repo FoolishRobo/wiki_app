@@ -17,22 +17,30 @@ class HomePageRepo {
     bool isConnected = await ConnectivityService().isUserConnectedToInternet();
 
     if (isConnected) {
+      /// if user is connected to internet, make api call
       Either<CustomError, ListOfWikiItemModel> response = await _api.get<ListOfWikiItemModel>(
         url,
         (json) => ListOfWikiItemModel.fromJson(json['query']),
       );
+
+      /// TODO: We can create a Cache Service class which can handle the caching of data
+      /// Store data in hive for offline use
       response.fold((left) {}, (right) async {
-        // HiveService.instance.deleteAllBoxes();
+        /// if data is already cached in hive, append the new api data to the existing data
         if (offset > 0 && await HiveService.instance.isDataCached(HiveUtils.wikiSearchBox, query)) {
           ListOfWikiItemModel wikiItems = await HiveService.instance.getData(HiveUtils.wikiSearchBox, query);
-          right.wikiItemList = [...wikiItems.wikiItemList, ...right.wikiItemList]; //.addAll(wikiItems.wikiItemList);
+          right.wikiItemList = [...wikiItems.wikiItemList, ...right.wikiItemList];
         }
+
+        /// save data in hive
         HiveService.instance.saveData(HiveUtils.wikiSearchBox, query, right, isPaginatedApi: offset > 0);
       });
       return response;
     } else {
+      /// TODO: We can create a Cache Service class which can handle retrieving cached data
+      /// if data is cached in hive, return the cached data
       if (await HiveService.instance.isDataCached(HiveUtils.wikiSearchBox, query)) {
-        //in offline mode, hive will return all the paginated data at once.
+        //in offline mode, hive will return all the paginated page's data at once.
         if (offset > 0) {
           return Right(ListOfWikiItemModel([]));
         }

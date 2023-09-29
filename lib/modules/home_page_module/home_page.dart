@@ -4,6 +4,9 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:go_router/go_router.dart';
 import 'package:wiki_app/common/debouncer.dart';
 import 'package:wiki_app/modules/home_page_module/bloc/home_page_bloc.dart';
+import 'package:wiki_app/modules/wiki_description_module/bloc/wiki_description_bloc.dart';
+import 'package:wiki_app/modules/wiki_description_module/bloc/wiki_description_event.dart';
+import 'package:wiki_app/modules/wiki_description_module/bloc/wiki_description_state.dart';
 import 'package:wiki_app/utils/extensions.dart';
 
 class HomePage extends StatefulWidget {
@@ -37,14 +40,9 @@ class _HomePageState extends State<HomePage> {
   }
 
   @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider<HomePageBloc>(
-          create: (_) => HomePageBloc(),
-        ),
-      ],
-      child: Scaffold(
+  Widget build(BuildContext homePagecontext) {
+    return Builder(builder: (context) {
+      return Scaffold(
         body: SafeArea(
           child: Padding(
             padding: const EdgeInsets.symmetric(
@@ -60,8 +58,8 @@ class _HomePageState extends State<HomePage> {
             ),
           ),
         ),
-      ),
-    );
+      );
+    });
   }
 
   Widget getTextField() {
@@ -97,16 +95,16 @@ class _HomePageState extends State<HomePage> {
             child: CircularProgressIndicator(),
           );
         } else if (state is LoadedHomePageState) {
-          return getListView(state, false, context);
+          return getListView(state, false);
         } else if (state is LoadingPaginatedHomePageState) {
-          return getListView(state, true, context);
+          return getListView(state, true);
         }
         return Container();
       },
     );
   }
 
-  Widget getListView(state, bool isLoadingPaginatedView, BuildContext context) {
+  Widget getListView(state, bool isLoadingPaginatedView) {
     return Expanded(
       child: ListView.builder(
         controller: _scrollController
@@ -121,20 +119,29 @@ class _HomePageState extends State<HomePage> {
         itemBuilder: (context, index) {
           return Column(
             children: [
-              ListTile(
-                leading: CachedNetworkImage(
-                  imageUrl: state.pages[index].thumbnail?.source ?? '',
-                  errorWidget: (context, url, error) => const SizedBox(width: 60, child: Center(child: Icon(Icons.error))),
-                  width: 60,
-                  fit: BoxFit.cover,
-                ),
-                title: Text(state.pages[index].title ?? ''),
-                subtitle: Text(state.pages[index].description ?? ''),
-                onTap: () {
-                  context.go(context
-                      .namedLocation('wiki_desc', pathParameters: {'id': state.pages[index].pageid.toString(), 'title': state.pages[index].title.toString()}));
-                },
-              ),
+              BlocBuilder<WikiDescriptionBloc, WikiDescriptionState>(builder: (bookmarkContext, bookmarkState) {
+                return ListTile(
+                  leading: CachedNetworkImage(
+                    imageUrl: state.pages[index].thumbnail?.source ?? '',
+                    errorWidget: (context, url, error) => const SizedBox(width: 60, child: Center(child: Icon(Icons.error))),
+                    width: 60,
+                    fit: BoxFit.cover,
+                  ),
+                  trailing: IconButton(
+                    onPressed: () {
+                      BlocProvider.of<WikiDescriptionBloc>(context).add(bookmarkState.isBookmarkAddedEvent.contains(state.pages[index].pageid.toString())
+                          ? RemoveFromBookmarkEvent(state.pages[index].pageid.toString())
+                          : AddToBookmarkEvent(state.pages[index].pageid.toString()));
+                    },
+                    icon: Icon(bookmarkState.isBookmarkAddedEvent.contains(state.pages[index].pageid.toString()) ? Icons.bookmark : Icons.bookmark_border),
+                  ),
+                  title: Text(state.pages[index].title ?? ''),
+                  subtitle: Text(state.pages[index].description ?? ''),
+                  onTap: () {
+                    context.goNamed('wiki_desc', pathParameters: {'id': state.pages[index].pageid.toString(), 'title': state.pages[index].title.toString()});
+                  },
+                );
+              }),
               if (isLoadingPaginatedView && index == state.pages.length - 1)
                 const Column(
                   children: [
